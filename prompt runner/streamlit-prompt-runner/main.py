@@ -14,6 +14,8 @@ logger = logging.getLogger("prompt_runner")
 BASE_URL = os.environ.get("PROMPT_TO_JSON_URL", "http://127.0.0.1:8000")
 DEFAULT_USERNAME = os.environ.get("PROMPT_TO_JSON_USERNAME", "admin")
 DEFAULT_PASSWORD = os.environ.get("PROMPT_TO_JSON_PASSWORD", "bhiv2024")
+# Control whether preview URLs are shown in the UI. Set SHOW_PREVIEW=1|true to enable.
+SHOW_PREVIEW = os.environ.get("SHOW_PREVIEW", "false").lower() in ("1", "true", "yes")
 
 st.set_page_config(page_title="Prompt Runner", layout="wide")
 st.title("Prompt Runner")
@@ -125,11 +127,12 @@ with tabs[0]:
             except Exception as e:
                 st.error(f"Generate failed: {str(e)}")
 
-    if st.session_state.get("last_spec_json"):
-        st.markdown("**Latest Spec**")
-        st.json(st.session_state["last_spec_json"])
-        if st.session_state.get("last_preview_url"):
-            st.markdown(f"**Preview URL:** {st.session_state['last_preview_url']}")
+        if st.session_state.get("last_spec_json"):
+            st.markdown("**Latest Spec**")
+            st.json(st.session_state["last_spec_json"])
+            # Preview URL is hidden by default. Enable by setting env SHOW_PREVIEW=1|true.
+            if st.session_state.get("last_preview_url") and SHOW_PREVIEW:
+                st.markdown(f"**Preview URL:** {st.session_state['last_preview_url']}")
 
 # --- Switch ---
 with tabs[1]:
